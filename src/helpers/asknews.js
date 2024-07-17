@@ -82,18 +82,18 @@ const parseWebResults = (webResults) => {
 }
 
 const parseAskNewsForecast = (forecast) => {
-    return `Forecast: ${forecast.forecast}\n\nResolution Criteria: ${forecast.resolutionCriteria}\n\nReasoning: ${forecast.reasoning}\n\nSources: ${parseAskNewsArticles(forecast.sources)}\n\nTimeline to resolution: ${forecast.timeline.map(t => `${t}\n`).join('')}\n\nProbability: ${forecast.probability}\n\nLLM Confidence: ${forecast.llmConfidence}\n\nWeb Results: ${parseWebResults(forecast.webSearchResults)}\n\nSummary: ${forecast.summary}\n\nReconciled Information: ${forecast.reconciledInformation}\n\nUnique Information: ${forecast.uniqueInformation}\n\n`;
+    return `----------\n\n#ASKNEWS Forecast API\n## Forecast:\n ${forecast.forecast}\n\n## Resolution Criteria:\n ${forecast.resolutionCriteria}\n\n## Reasoning:\n ${forecast.reasoning}\n\n## Sources:\n ${parseAskNewsArticles(forecast.sources)}\n\n## Timeline to resolution:\n ${forecast.timeline.map(t => `${t}\n`).join('')}\n\n## Probability:\n ${forecast.probability}%\n\n## LLM Confidence (Claude 3.5):\n ${forecast.llmConfidence}\n\n## Web Results:\n ${parseWebResults(forecast.webSearchResults)}\n\n## Summary:\n ${forecast.summary}\n\n## Reconciled Information:\n ${forecast.reconciledInformation}\n\n## Unique Information:\n ${forecast.uniqueInformation}\n\n`;
 
 }
 
-const getAskNewsForecast = async (query) => {
+const getAskNewsForecast = async (query, additionalContext = '') => {
     const response = await ask.forecast.getForecast({
         query,
         lookback: 180,
         articlesToUse: 50,
         model: 'claude-3-5-sonnet-20240620',
         webSearch: true,
-        // additionalContext: "",
+        additionalContext: additionalContext,
     })
     return parseAskNewsForecast(response);
 };
