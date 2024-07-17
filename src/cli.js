@@ -2,7 +2,7 @@
 import 'dotenv/config';
 import { program } from "commander";
 import chalk from "chalk";
-import { predict, predictAll, predictFirst } from "./index.js";
+import { predict, predictAll, predictFirst } from "./app.js";
 
 
 
