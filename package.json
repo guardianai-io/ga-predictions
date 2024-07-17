@@ -1,0 +1,24 @@
+{
+  "name": "ga-predictions",
+  "version": "0.0.1",
+  "description": "Bot to make predictions on Metaculus",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "ganswer": "./src/cli.js"
+  },
+  "author": "Guardian AI",
+  "license": "MIT",
+  "dependencies": {
+    "@emergentmethods/asknews-typescript-sdk": "^0.2.2",
+    "axios": "^1.7.2",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "dayjs": "^1.11.11",
+    "dotenv": "^16.4.5",
+    "openai": "^4.52.7"
+  }
+}
