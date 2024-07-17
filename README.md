@@ -61,6 +61,21 @@ ganswer --first
 ganswer -f
 ```
 
+Use `ganswer -h` for a full help message:
+
+```
+Usage: ganswer [options]
+
+Guardian AI Metaculus CLI
+
+Options:
+  -V, --version         output the version number
+  -f, --first [string]  Answer the first question in the list of open questions.
+  -i, --id [integer]    Provide the id of the question to answer
+  -a, --all             Answer all the open questions.
+  -h, --help            display help for command
+```
+
 ## Environment Variables
 Create a .env file in the root directory of your project and add the following environment variables. You can use the .env.example file as a reference:
 
