@@ -27,7 +27,7 @@ const predict = async (questionId) => {
     if (probability !== null && SUBMIT_PREDICTION) {
         await postQuestionPrediction(questionId, probability);
         const gptResult = `${probabilityTemplate}${rationaleTemplate}`;
-        const comment = `GPT\n\n${gptResult}\n\n${sourcesTemplate}\n\n${askNewsForecast ? askNewsForecast : ""}\n\n#########\n\n`;
+        const comment = `GPT\n\n${gptResult}\n\n${sourcesTemplate}\n\n${askNewsForecast ? askNewsForecastTemplate : ""}\n\n#########\n\n`;
         console.log(comment);
         await postQuestionComment(questionId, comment);
     }

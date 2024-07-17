@@ -24,7 +24,7 @@ const getGptPrediction = async (questionDetails) => {
     const askNewsResult = await getAskNewsContext(title);
     newsArticles = askNewsResult.llmContext;
 
-    const askNewsForecast = ASKNEWS_FORECAST_API ? await getAskNewsForecast(title) : undefined;
+    const askNewsForecast = ASKNEWS_FORECAST_API ? await getAskNewsForecast(title, fine_print) : undefined;
 
     let content = PROMPT_TEMPLATE
         .replace("{title}", title)
