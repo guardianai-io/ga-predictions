@@ -7,7 +7,7 @@ import { forecaster, professor, professorAndAFriend } from '../prompts/index.js'
 import 'dotenv/config'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const ASKNEWS_FORECAST_API = process.env.ASKNEWS_FORECAST_API === "true";
+const ASKNEWS_FORECAST_API = process.env.ASKNEWS_FORECAST_API === 'true';
 const oaiClient = new OpenAIApi({ apiKey: OPENAI_API_KEY })
 
 // const PROMPT_TEMPLATE = forecaster
@@ -24,7 +24,7 @@ const getGptPrediction = async (questionDetails) => {
     const askNewsResult = await getAskNewsContext(title);
     newsArticles = askNewsResult.llmContext;
 
-    const askNewsForecast = await getAskNewsForecast(title);
+    const askNewsForecast = ASKNEWS_FORECAST_API ? await getAskNewsForecast(title) : undefined;
 
     let content = PROMPT_TEMPLATE
         .replace("{title}", title)
@@ -34,7 +34,7 @@ const getGptPrediction = async (questionDetails) => {
         .replace("{resolution_criteria}", resolution_criteria)
         .replace("{fine_print}", fine_print);
 
-    if (ASKNEWS_FORECAST_API) {
+    if (askNewsForecast) {
         content = content.replace("{trusted_forecast}", askNewsForecast);
     }
 
