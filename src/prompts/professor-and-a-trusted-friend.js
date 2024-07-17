@@ -36,6 +36,7 @@ Follow these steps when generating output:
 
 1) **provide rationale** Given the question, the resolution criteria, the news articles, the background and the fine print, provide your expert forecasting rationale behind whether or not the resolution criteria will be achieved.
 2) **determine a forecast probability** Given the resolution criteria and your rationale, determine a the probability (likelihood) that the resolution criteria will be achieved, this is an integer between 0 and 100.
+3) **compare your forecast with your friend's forecast** Given your forecast and your friend's forecast, provide a rationale for why you agree or disagree with your friend's forecast.
 
 Output your response in the following JSON structure:
 
