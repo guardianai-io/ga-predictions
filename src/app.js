@@ -59,7 +59,7 @@ const predictWithEvaluation = async (questionId) => {
 
 }
 
-const predictAll = async ({ evaluation = false }) => {
+const predictAll = async ({ evaluation }) => {
     const questions = await listQuestions();
     const openQuestionIds = questions.results.filter(q => q.active_state === "OPEN").map(q => q.id);
 
@@ -79,7 +79,7 @@ const predictAll = async ({ evaluation = false }) => {
     }
 };
 
-const predictFirst = async ({ evaluation = false }) => {
+const predictFirst = async ({ evaluation }) => {
     const questions = await listQuestions();
     const openQuestionIds = questions.results.filter(q => q.active_state === "OPEN").map(q => q.id);
 
