@@ -2,7 +2,7 @@ import OpenAIApi from 'openai';
 import dayjs from 'dayjs';
 
 import { getAskNewsContext, getAskNewsForecast } from './asknews.js';
-import { forecaster, professor, professorAndAFriend } from '../prompts/index.js';
+import { forecaster, professor, professorAndAFriend, evaluator } from '../prompts/index.js';
 
 import 'dotenv/config'
 
@@ -57,4 +57,39 @@ const getGptPrediction = async (questionDetails) => {
     return { probability, askNewsResult, rationale, askNewsForecast: ASKNEWS_FORECAST_API ? askNewsForecast : undefined };
 };
 
-export { getGptPrediction };
+const getGptEvaluation = async (questionDetails) => {
+    const today = dayjs().format("YYYY-MM-DD");
+
+    const { title, resolution_criteria, description, fine_print } = questionDetails;
+
+    const shortTermForecast = await getAskNewsForecast(title, fine_print, 30, 50);
+    const longTermForecast = await getAskNewsForecast(title, fine_print, 360, 50);
+
+    let content = evaluator
+        .replace("{title}", title)
+        .replace("{today}", today)
+        .replace("{background}", description)
+        .replace("{resolution_criteria}", resolution_criteria)
+        .replace("{fine_print}", fine_print)
+        .replace("{short_term_forecast}", shortTermForecast)
+        .replace("{long_term_forecast}", longTermForecast)
+
+    const chatCompletion = await oaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "user",
+                content: content
+            }
+        ],
+        response_format: { type: "json_object" }
+    });
+
+    const gptText = chatCompletion.choices[0].message.content;
+    const { probability, rationale, explanation } = JSON.parse(gptText);
+
+
+    return { probability, shortTermForecast, longTermForecast, rationale, explanation };
+};
+
+export { getGptPrediction, getGptEvaluation };

@@ -86,11 +86,11 @@ const parseAskNewsForecast = (forecast) => {
 
 }
 
-const getAskNewsForecast = async (query, additionalContext = '') => {
+const getAskNewsForecast = async (query, additionalContext = '', lookback = 180, articlesToUse = 50) => {
     const response = await ask.forecast.getForecast({
         query,
-        lookback: 180,
-        articlesToUse: 50,
+        lookback: lookback,
+        articlesToUse: articlesToUse,
         model: 'claude-3-5-sonnet-20240620',
         webSearch: true,
         additionalContext: additionalContext,

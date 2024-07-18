@@ -12,10 +12,13 @@ program
     .option("-f, --first [string]", "Answer the first question in the list of open questions.")
     .option("-i, --id [integer]", "Provide the id of the question to answer")
     .option("-a, --all", "Answer all the open questions.")
+    .option("-e, --evaluation", "Evaluate forecasts")
     .action(async (options) => {
+        const evaluation = options.evaluation
+
         if (options.first) {
             console.log(chalk.yellow("Answering the first question in the list of open questions."));
-            await predictFirst();
+            await predictFirst(evaluation);
         }
 
         if (options.id) {
@@ -25,7 +28,7 @@ program
 
         if (options.all) {
             chalk.yellow("Answering all the open questions.");
-            await predictAll();
+            await predictAll(evaluation);
         }
 
         return;
