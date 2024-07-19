@@ -86,7 +86,7 @@ const parseAskNewsForecast = (forecast) => {
         probability: forecast.probability,
         forecast: forecast.forecast,
         reasoning: forecast.reasoning,
-        formatted: `#ASKNEWS Forecast:\n ${forecast.forecast}\n\n## Resolution Criteria:\n ${forecast.resolutionCriteria}\n\n## Reasoning:\n ${forecast.reasoning}\n\n## Sources:\n ${parseAskNewsArticles(forecast.sources)}\n\n## Timeline to resolution:\n ${forecast.timeline.map(t => `${t}\n`).join('')}\n\n## Probability:\n ${forecast.probability}%\n\n## LLM Confidence (Claude 3.5):\n ${forecast.llmConfidence}\n\n## Web Results:\n ${parseWebResults(forecast.webSearchResults)}\n\n## Summary:\n ${forecast.summary}\n\n## Reconciled Information:\n ${forecast.reconciledInformation}\n\n## Unique Information:\n ${forecast.uniqueInformation}\n\n`
+        formatted: `# ASKNEWS Forecast:\n ${forecast.forecast}\n\n## Resolution Criteria:\n ${forecast.resolutionCriteria}\n\n## Reasoning:\n ${forecast.reasoning}\n\n## Sources:\n ${parseAskNewsArticles(forecast.sources)}\n\n## Timeline to resolution:\n ${forecast.timeline.map(t => `${t}\n`).join('')}\n\n## Probability:\n ${forecast.probability}%\n\n## LLM Confidence (Claude 3.5):\n ${forecast.llmConfidence}\n\n## Web Results:\n ${parseWebResults(forecast.webSearchResults)}\n\n## Summary:\n ${forecast.summary}\n\n## Reconciled Information:\n ${forecast.reconciledInformation}\n\n## Unique Information:\n ${forecast.uniqueInformation}\n\n`
     };
 
 }
