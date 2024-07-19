@@ -49,7 +49,7 @@ const predictWithEvaluation = async (questionId) => {
 
     console.log(chalk.yellow(`Asking the analyst for the final prediction`));
     const finalResult = await getAnalysis(output, questionDetails);
-    const finalOutput = `# Analyst Prediction: ${finalResult.probability}%\n\n** Final Forecast Probability** :${probability}%\n\n** Short-term Forecast Probability** :${shortTermForecast.probability}%\n\n** Long-term Forecast Probability** :${longTermForecast.probability}%\n\n# Rational: ${finalResult.rationale}\n\n# Explanation: ${finalResult.explanation}\n\n----------\n\n${output}`
+    const finalOutput = `# Analyst Prediction: ${finalResult.probability}%\n\n** Final Forecast Probability** :${probability}%\n\n** Short-term Forecast Probability** :${shortTermForecast.probability}%\n\n** Long-term Forecast Probability** :${longTermForecast.probability}%\n\n**Rational** : ${finalResult.rationale}\n\n**Explanation** : ${finalResult.explanation}\n\n----------\n\n${output}`
 
 
 
@@ -59,7 +59,7 @@ const predictWithEvaluation = async (questionId) => {
 
     if (probability !== null && SUBMIT_PREDICTION) {
         await postQuestionPrediction(questionId, finalResult.probability);
-        const comment = `[Guardian AI](https://guardianai.io)'s prediction:\n\n${finalOutput}\n\n[Guardian AI](https://guardianai.io)\n\n`;
+        const comment = `[Guardian AI](https://guardianai.io)'s prediction ([code and prompts](https://github.com/guardianai-io/ga-predictions)):\n\n${finalOutput}\n\n[Guardian AI](https://guardianai.io)\n\n`;
         console.log(comment);
         await postQuestionComment(questionId, comment);
     }
