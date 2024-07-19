@@ -39,11 +39,11 @@ const predictWithEvaluation = async (questionId) => {
 
     const { probability, shortTermForecast, longTermForecast, rationale, explanation } = await getGptEvaluation(questionDetails);
 
-    const probabilityTemplate = `# Probability: ${probability}%\n\n`;
+    const probabilityTemplate = `# Final Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
     const rationaleTemplate = `# Rationale:\n\n ${rationale}\n\n`;
     const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
-    const shortTermForecastTemplate = `# Short-term Forecast:\n\n ${shortTermForecast}\n\n`;
-    const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast}\n\n`;
+    const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
+    const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast.formatted}\n\n`;
     const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}$`;
 
     if (!SUBMIT_PREDICTION) {
@@ -52,7 +52,7 @@ const predictWithEvaluation = async (questionId) => {
 
     if (probability !== null && SUBMIT_PREDICTION) {
         await postQuestionPrediction(questionId, probability);
-        const comment = `[Guardian AI](https://guardianai.io)'s prediction:\n\n${output}\n\n [Guardian AI](https://guardianai.io)\n\n`;
+        const comment = `[Guardian AI](https://guardianai.io)'s prediction:\n\n${output}\n\n[Guardian AI](https://guardianai.io)\n\n`;
         console.log(comment);
         await postQuestionComment(questionId, comment);
     }
