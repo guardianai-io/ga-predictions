@@ -44,7 +44,7 @@ const predictWithEvaluation = async (questionId) => {
     const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
     const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
     const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast.formatted}\n\n`;
-    const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}$`;
+    const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}`;
 
     if (!SUBMIT_PREDICTION) {
         console.log(`------OUTPUT-------\n\n${output}`);
