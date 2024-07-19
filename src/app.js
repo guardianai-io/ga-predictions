@@ -1,5 +1,6 @@
 import { getQuestionDetails, listQuestions, postQuestionPrediction, postQuestionComment } from './helpers/metaculus.js';
-import { getGptPrediction, getGptEvaluation } from './helpers/openai.js';
+import { getGptPrediction, getGptEvaluation, getAnalysis } from './helpers/openai.js';
+import chalk from "chalk";
 
 import 'dotenv/config'
 
@@ -10,8 +11,8 @@ const SUBMIT_PREDICTION = process.env.SUBMIT_PREDICTION === 'true';
 
 const predict = async (questionId) => {
     const questionDetails = await getQuestionDetails(questionId);
-    console.log(`Question: ${questionDetails.title}\n\nResolution criteria: ${questionDetails.resolution_criteria}\n\nDescription: ${questionDetails.description}\n\nFine print: ${questionDetails.fine_print}\n\n`);
 
+    console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
     const { probability, askNewsResult, rationale, askNewsForecast } = await getGptPrediction(questionDetails);
 
     const probabilityTemplate = `Probability: ${probability}%\n\n`;
@@ -35,24 +36,30 @@ const predict = async (questionId) => {
 
 const predictWithEvaluation = async (questionId) => {
     const questionDetails = await getQuestionDetails(questionId);
-    console.log(`Question: ${questionDetails.title}\n\nResolution criteria: ${questionDetails.resolution_criteria}\n\nDescription: ${questionDetails.description}\n\nFine print: ${questionDetails.fine_print}\n\n`);
 
+    console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
     const { probability, shortTermForecast, longTermForecast, rationale, explanation } = await getGptEvaluation(questionDetails);
 
-    const probabilityTemplate = `# Final Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
+    const probabilityTemplate = `----------\n\n#Forecast Result\n\n## Forecast Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
     const rationaleTemplate = `# Rationale:\n\n ${rationale}\n\n`;
     const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
     const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
     const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast.formatted}\n\n`;
     const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}`;
 
+    console.log(chalk.yellow(`Asking the analyst for the final prediction`));
+    const finalResult = await getAnalysis(output, questionDetails);
+    const finalOutput = `# Analyst Prediction: ${finalResult.probability}%\n\n** Final Forecast Probability** :${probability}%\n\n** Short-term Forecast Probability** :${shortTermForecast.probability}%\n\n** Long-term Forecast Probability** :${longTermForecast.probability}%\n\n# Rational: ${finalResult.rationale}\n\n# Explanation: ${finalResult.explanation}\n\n----------\n\n${output}`
+
+
+
     if (!SUBMIT_PREDICTION) {
-        console.log(`------OUTPUT-------\n\n${output}`);
+        console.log(`------OUTPUT-------\n\n${finalOutput}`);
     }
 
     if (probability !== null && SUBMIT_PREDICTION) {
-        await postQuestionPrediction(questionId, probability);
-        const comment = `[Guardian AI](https://guardianai.io)'s prediction:\n\n${output}\n\n[Guardian AI](https://guardianai.io)\n\n`;
+        await postQuestionPrediction(questionId, finalResult.probability);
+        const comment = `[Guardian AI](https://guardianai.io)'s prediction:\n\n${finalOutput}\n\n[Guardian AI](https://guardianai.io)\n\n`;
         console.log(comment);
         await postQuestionComment(questionId, comment);
     }

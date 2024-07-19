@@ -53,6 +53,11 @@ ganswer --all
 ganswer -a
 ```
 
+* Predict the outcomes for all open questions by evaluating predictions:
+```bash
+ganswer -a -e
+```
+
 * Predict the outcome for the first open question in the list:
 
 ```bash
@@ -73,6 +78,7 @@ Options:
   -f, --first [string]  Answer the first question in the list of open questions.
   -i, --id [integer]    Provide the id of the question to answer
   -a, --all             Answer all the open questions.
+  -e, --evaluation      Evaluate forecasts
   -h, --help            display help for command
 ```
 

@@ -2,7 +2,7 @@ import OpenAIApi from 'openai';
 import dayjs from 'dayjs';
 
 import { getAskNewsContext, getForecasts } from './asknews.js';
-import { forecaster, professor, professorAndAFriend, evaluator } from '../prompts/index.js';
+import { forecaster, professor, professorAndAFriend, evaluator, analyst } from '../prompts/index.js';
 
 import 'dotenv/config'
 
@@ -90,4 +90,30 @@ const getGptEvaluation = async (questionDetails) => {
     return { probability, shortTermForecast, longTermForecast, rationale, explanation };
 };
 
-export { getGptPrediction, getGptEvaluation };
+const getAnalysis = async (report, questionDetails) => {
+    const today = dayjs().format("YYYY-MM-DD");
+    const { title } = questionDetails;
+
+    const content = analyst
+        .replace("{title}", title)
+        .replace("{today}", today)
+        .replace("{initial_report}", report);
+
+    const chatCompletion = await oaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "user",
+                content: content
+            }
+        ],
+        response_format: { type: "json_object" }
+    });
+
+    const gptText = chatCompletion.choices[0].message.content;
+    const { probability, rationale, explanation } = JSON.parse(gptText);
+
+    return { probability, rationale, explanation };
+};
+
+export { getGptPrediction, getGptEvaluation, getAnalysis };
