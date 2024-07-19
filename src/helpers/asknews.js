@@ -103,4 +103,13 @@ const getAskNewsForecast = async (query, additionalContext = '', lookback = 180,
     return parseAskNewsForecast(response);
 };
 
-export { getAskNewsContext, getAskNewsForecast, parseAskNewsForecast };
+async function getForecasts(title, fine_print) {
+    const shortTermPromise = getAskNewsForecast(title, fine_print, 30, 50);
+    const longTermPromise = getAskNewsForecast(title, fine_print, 360, 50);
+
+    const [shortTermForecast, longTermForecast] = await Promise.all([shortTermPromise, longTermPromise]);
+
+    return { shortTermForecast, longTermForecast };
+}
+
+export { getAskNewsContext, parseAskNewsForecast, getForecasts };

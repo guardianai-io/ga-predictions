@@ -1,7 +1,7 @@
 import OpenAIApi from 'openai';
 import dayjs from 'dayjs';
 
-import { getAskNewsContext, getAskNewsForecast } from './asknews.js';
+import { getAskNewsContext, getForecasts } from './asknews.js';
 import { forecaster, professor, professorAndAFriend, evaluator } from '../prompts/index.js';
 
 import 'dotenv/config'
@@ -62,8 +62,7 @@ const getGptEvaluation = async (questionDetails) => {
 
     const { title, resolution_criteria, description, fine_print } = questionDetails;
 
-    const shortTermForecast = await getAskNewsForecast(title, fine_print, 30, 50);
-    const longTermForecast = await getAskNewsForecast(title, fine_print, 360, 50);
+    const { shortTermForecast, longTermForecast } = await getForecasts(title, fine_print);
 
     let content = evaluator
         .replace("{title}", title)
@@ -87,8 +86,6 @@ const getGptEvaluation = async (questionDetails) => {
 
     const gptText = chatCompletion.choices[0].message.content;
     const { probability, rationale, explanation } = JSON.parse(gptText);
-    console.log(gptText)
-
 
     return { probability, shortTermForecast, longTermForecast, rationale, explanation };
 };
