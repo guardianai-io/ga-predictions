@@ -38,7 +38,7 @@ Follow these steps when generating output:
 
 1) **provide rationale** Given the question, the resolution criteria, the short-term forecast, the long-term forecast, the background, and the fine print, provide your expert forecasting rationale behind whether or not the resolution criteria will be achieved.
 2) **determine a forecast probability** Given the resolution criteria and your rationale, determine the probability (likelihood) that the resolution criteria will be achieved, this is an integer between 0 and 100.
-3) **write down your reasoning/explanation** Clearly explain the factors that influenced your forecast, the data you considered, how the short and long term forecast reports impacted your result and the methods you used to arrive at your probability estimate.
+3) **write down your reasoning/explanation** Clearly explain the factors that influenced your forecast, the data you considered, how the short and long term forecast reports impacted your result, how the provided sources in both reports helped you, but also the methods you used to arrive at your probability estimate.
 
 Output your response in the following JSON structure:
 
