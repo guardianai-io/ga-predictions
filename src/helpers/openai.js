@@ -87,6 +87,7 @@ const getGptEvaluation = async (questionDetails) => {
 
     const gptText = chatCompletion.choices[0].message.content;
     const { probability, rationale, explanation } = JSON.parse(gptText);
+    console.log(gptText)
 
 
     return { probability, shortTermForecast, longTermForecast, rationale, explanation };

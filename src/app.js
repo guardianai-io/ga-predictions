@@ -1,5 +1,5 @@
 import { getQuestionDetails, listQuestions, postQuestionPrediction, postQuestionComment } from './helpers/metaculus.js';
-import { getGptPrediction } from './helpers/openai.js';
+import { getGptPrediction, getGptEvaluation } from './helpers/openai.js';
 
 import 'dotenv/config'
 

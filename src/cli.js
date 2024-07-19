@@ -18,7 +18,7 @@ program
 
         if (options.first) {
             console.log(chalk.yellow("Answering the first question in the list of open questions."));
-            await predictFirst(evaluation);
+            await predictFirst({ evaluation });
         }
 
         if (options.id) {
@@ -28,7 +28,7 @@ program
 
         if (options.all) {
             chalk.yellow("Answering all the open questions.");
-            await predictAll(evaluation);
+            await predictAll({ evaluation });
         }
 
         return;
