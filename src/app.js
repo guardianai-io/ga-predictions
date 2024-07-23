@@ -40,7 +40,7 @@ const predictWithEvaluation = async (questionId) => {
     console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
     const { probability, shortTermForecast, longTermForecast, rationale, explanation } = await getGptEvaluation(questionDetails);
 
-    const probabilityTemplate = `----------\n\n#Forecast Result\n\n## Forecast Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
+    const probabilityTemplate = `----------\n\n#Forecast Result\n\n## Forecast Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
     const rationaleTemplate = `# Rationale:\n\n ${rationale}\n\n`;
     const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
     const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
