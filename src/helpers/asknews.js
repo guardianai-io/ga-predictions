@@ -1,5 +1,6 @@
 import { AskNewsSDK } from '@emergentmethods/asknews-typescript-sdk';
 import dayjs from 'dayjs';
+import chalk from "chalk";
 
 import 'dotenv/config'
 
@@ -94,18 +95,21 @@ const parseAskNewsForecast = (forecast) => {
 const getAskNewsForecast = async (query, additionalContext = '', lookback = 180, articlesToUse = 50) => {
     const response = await ask.forecast.getForecast({
         query,
-        lookback: lookback,
-        articlesToUse: articlesToUse,
+        lookback,
+        articlesToUse,
         model: 'claude-3-5-sonnet-20240620',
         webSearch: true,
-        additionalContext: additionalContext,
+        additionalContext,
     })
     return parseAskNewsForecast(response);
 };
 
 async function getForecasts(title, fine_print) {
+    console.log(chalk.yellow(`Get short-term forecast`));
     const shortTermPromise = getAskNewsForecast(title, fine_print, 30, 50);
-    const longTermPromise = getAskNewsForecast(title, fine_print, 360, 50);
+
+    console.log(chalk.yellow(`Get long-term forecast`));
+    const longTermPromise = getAskNewsForecast(title, fine_print, 360, 100);
 
     const [shortTermForecast, longTermForecast] = await Promise.all([shortTermPromise, longTermPromise]);
 

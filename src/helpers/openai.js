@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import dayjs from 'dayjs';
+import chalk from "chalk";
 
 import { getAskNewsContext, getForecasts } from './asknews.js';
 import { forecaster, professor, professorAndAFriend, evaluator, analyst } from '../prompts/index.js';
@@ -61,7 +62,6 @@ const getGptEvaluation = async (questionDetails) => {
     const today = dayjs().format("YYYY-MM-DD");
 
     const { title, resolution_criteria, description, fine_print } = questionDetails;
-
     const { shortTermForecast, longTermForecast } = await getForecasts(title, fine_print);
 
     let content = evaluator
@@ -71,7 +71,9 @@ const getGptEvaluation = async (questionDetails) => {
         .replace("{resolution_criteria}", resolution_criteria)
         .replace("{fine_print}", fine_print)
         .replace("{short_term_forecast}", shortTermForecast)
-        .replace("{long_term_forecast}", longTermForecast)
+        .replace("{long_term_forecast}", longTermForecast);
+
+    console.log(chalk.yellow(`Evaluating short and long term forecasts`));
 
     const chatCompletion = await oaiClient.chat.completions.create({
         model: "gpt-4o",
