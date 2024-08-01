@@ -1,15 +1,54 @@
 import { getQuestionDetails, listQuestions, postQuestionPrediction, postQuestionComment } from './helpers/metaculus.js';
 import { getGptPrediction, getGptEvaluation, getAnalysis } from './helpers/openai.js';
+import { gaSubmitPrediction } from './helpers/guardianai.js';
 import chalk from "chalk";
 
 import 'dotenv/config'
 
 
 const SUBMIT_PREDICTION = process.env.SUBMIT_PREDICTION === 'true';
+const GUARDIANAI_SUBMIT_PREDICTION = process.env.GUARDIANAI_SUBMIT_PREDICTION === 'true';
+
+
+const predictWithEvaluation = async (questionId) => {
+    const questionDetails = await getQuestionDetails(questionId);
+
+    console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
+    const { probability, shortTermForecast, longTermForecast, rationale, explanation } = await getGptEvaluation(questionDetails);
+
+    const probabilityTemplate = `----------\n\n#Forecast Result\n\n## Forecast Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
+    const rationaleTemplate = `# Rationale:\n\n ${rationale}\n\n`;
+    const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
+    const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
+    const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast.formatted}\n\n`;
+    const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}`;
+
+    console.log(chalk.yellow(`Asking the analyst for the final report for question ID ${questionId}`));
+    const finalResult = await getAnalysis(output, questionDetails);
+    const finalOutput = `# Analyst Prediction: ${finalResult.probability}%\n\n** Final Forecast Probability** :${probability}%\n\n** Short-term Forecast Probability** :${shortTermForecast.probability}%\n\n** Long-term Forecast Probability** :${longTermForecast.probability}%\n\n**Rational** : ${finalResult.rationale}\n\n**Explanation** : ${finalResult.explanation}\n\n----------\n\n${output}`
 
 
 
-const predict = async (questionId) => {
+    if (!SUBMIT_PREDICTION) {
+        console.log(`------OUTPUT-------\n\n${finalOutput}`);
+    }
+
+    if (probability !== null && GUARDIANAI_SUBMIT_PREDICTION) {
+        const { message, doc } = await gaSubmitPrediction(questionDetails, finalResult.probability, finalOutput);
+        console.log(`${message} for question: ${doc.question}`);
+    }
+
+    if (probability !== null && SUBMIT_PREDICTION) {
+        await postQuestionPrediction(questionId, finalResult.probability);
+        const comment = `[Guardian AI](https://guardianai.io)'s prediction ([code and prompts](https://github.com/guardianai-io/ga-predictions)):\n\n${finalOutput}\n\n[Guardian AI](https://guardianai.io)\n\n`;
+        console.log(comment);
+        await postQuestionComment(questionId, comment);
+    }
+
+}
+
+
+const predict = async (questionId, { evaluation }) => {
     const questionDetails = await getQuestionDetails(questionId);
 
     console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
@@ -32,38 +71,6 @@ const predict = async (questionId) => {
         console.log(comment);
         await postQuestionComment(questionId, comment);
     }
-}
-
-const predictWithEvaluation = async (questionId) => {
-    const questionDetails = await getQuestionDetails(questionId);
-
-    console.log(chalk.yellow(`Predicting for question ID ${questionId}`));
-    const { probability, shortTermForecast, longTermForecast, rationale, explanation } = await getGptEvaluation(questionDetails);
-
-    const probabilityTemplate = `----------\n\n#Forecast Result\n\n## Forecast Probability: ${probability}%\n**Short-term Forecast Probability: ${shortTermForecast.probability}%**\n\n**Long-term Forecast Probability: ${longTermForecast.probability}%**\n\n`;
-    const rationaleTemplate = `# Rationale:\n\n ${rationale}\n\n`;
-    const explanationTemplate = `# Reasoning:\n\n ${explanation}\n\n`;
-    const shortTermForecastTemplate = `----------\n\n# Short-term Forecast:\n\n ${shortTermForecast.formatted}\n\n`;
-    const longTermForecastTemplate = `# Long-term Forecast:\n\n ${longTermForecast.formatted}\n\n`;
-    const output = `${probabilityTemplate}${rationaleTemplate}${explanationTemplate}${shortTermForecastTemplate}${longTermForecastTemplate}`;
-
-    console.log(chalk.yellow(`Asking the analyst for the final prediction`));
-    const finalResult = await getAnalysis(output, questionDetails);
-    const finalOutput = `# Analyst Prediction: ${finalResult.probability}%\n\n** Final Forecast Probability** :${probability}%\n\n** Short-term Forecast Probability** :${shortTermForecast.probability}%\n\n** Long-term Forecast Probability** :${longTermForecast.probability}%\n\n**Rational** : ${finalResult.rationale}\n\n**Explanation** : ${finalResult.explanation}\n\n----------\n\n${output}`
-
-
-
-    if (!SUBMIT_PREDICTION) {
-        console.log(`------OUTPUT-------\n\n${finalOutput}`);
-    }
-
-    if (probability !== null && SUBMIT_PREDICTION) {
-        await postQuestionPrediction(questionId, finalResult.probability);
-        const comment = `[Guardian AI](https://guardianai.io)'s prediction ([code and prompts](https://github.com/guardianai-io/ga-predictions)):\n\n${finalOutput}\n\n[Guardian AI](https://guardianai.io)\n\n`;
-        console.log(comment);
-        await postQuestionComment(questionId, comment);
-    }
-
 }
 
 const predictAll = async ({ evaluation }) => {
@@ -104,5 +111,19 @@ const predictFirst = async ({ evaluation }) => {
     }
 };
 
+const predictOne = async (questionId, { evaluation }) => {
+    try {
+        if (evaluation) {
+            await predictWithEvaluation(questionId);
+        } else {
+            await predict(questionId);
+        }
+    } catch (error) {
+        console.error(`Failed to predict for question ID ${questionId}:`, error);
 
-export { predict, predictAll, predictFirst };
+
+    }
+}
+
+
+export { predictOne, predictAll, predictFirst };

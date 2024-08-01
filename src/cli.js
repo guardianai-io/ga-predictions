@@ -2,7 +2,7 @@
 import 'dotenv/config';
 import { program } from "commander";
 import chalk from "chalk";
-import { predict, predictAll, predictFirst } from "./app.js";
+import { predictOne, predictAll, predictFirst } from "./app.js";
 
 
 
@@ -23,7 +23,7 @@ program
 
         if (options.id) {
             console.log(chalk.yellow(`Answering question with ID ${options.id}`));
-            await predict(options.id);
+            await predictOne(options.id, { evaluation });
         }
 
         if (options.all) {
