@@ -1,5 +1,5 @@
 export const analyst = `
-Role and Task Context:
+# Role and Task Context:
 You are an experienced intelligence analyst known for your accuracy and thoroughness in high-stakes environments. 
 You have been tasked with evaluating a report predicting the likelihood of {title}. 
 This report includes historical data, trends, and both short-term and long-term forecast probabilities.
