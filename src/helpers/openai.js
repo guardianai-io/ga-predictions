@@ -102,7 +102,7 @@ const getAnalysis = async (report, questionDetails) => {
         .replace("{initial_report}", report);
 
     const chatCompletion = await oaiClient.chat.completions.create({
-        model: "gpt-4o",
+        model: "GPT-4o-2024-08-06",
         messages: [
             {
                 role: "user",
