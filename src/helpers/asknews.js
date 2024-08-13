@@ -1,6 +1,8 @@
 import { AskNewsSDK } from '@emergentmethods/asknews-typescript-sdk';
 import dayjs from 'dayjs';
 import chalk from "chalk";
+import fs from 'fs/promises';
+import path from 'path';
 
 import 'dotenv/config'
 
@@ -90,11 +92,9 @@ const parseAskNewsForecast = (forecast) => {
         formatted: `# ASKNEWS Forecast:\n ${forecast.forecast}\n\n
         ## Resolution Criteria:\n ${forecast.resolutionCriteria}\n\n
         ## Reasoning:\n ${forecast.reasoning}\n\n
-        ## Sources:\n ${parseAskNewsArticles(forecast.sources)}\n\n
         ## Timeline to resolution:\n ${forecast.timeline.map(t => `${t}\n`).join('')}\n\n
         ## Probability:\n ${forecast.probability}%\n\n
         ## LLM Confidence (Claude 3.5):\n ${forecast.llmConfidence}\n\n
-        ## Web Results:\n ${forecast.webSearchResults.length ? parseWebResults(forecast.webSearchResults) : 'not applicable'}\n\n
         ## Key Facets:\n ${forecast.keyFacets.join('\n')}\n\n
         ## Reconciled Information:\n ${forecast.reconciledInformation}\n\n
         ## Summary:\n ${forecast.summary}\n\n
@@ -113,19 +113,54 @@ const getAskNewsForecast = async (query, additionalContext = '', lookback = 180,
         webSearch: true,
         additionalContext,
     })
-    return parseAskNewsForecast(response);
+    return { raw: response, parsed: parseAskNewsForecast(response) };
 };
 
-async function getForecasts(title, fine_print) {
-    console.log(chalk.yellow(`Get short-term forecast`));
-    const shortTermPromise = getAskNewsForecast(title, fine_print, 30, 50);
+// Helper function to ensure the cache directory exists
+async function ensureCacheDirExists(cacheDir) {
+    try {
+        await fs.access(cacheDir);
+    } catch (error) {
+        // Directory does not exist, so create it
+        await fs.mkdir(cacheDir, { recursive: true });
+        console.log(chalk.green(`Created cache directory: ${cacheDir}`));
+    }
+}
 
-    console.log(chalk.yellow(`Get long-term forecast`));
-    const longTermPromise = getAskNewsForecast(title, fine_print, 360, 100);
+// Helper function to get the forecast with caching
+async function getForecastWithCache(id, title, fine_print, duration, limit, forecastType, cacheDir) {
+    // Define the cache file path
+    const cachePath = path.join(cacheDir, `${id}_${forecastType}.json`);
 
-    const [shortTermForecast, longTermForecast] = await Promise.all([shortTermPromise, longTermPromise]);
+    // Check for cached forecast
+    try {
+        const cachedForecast = JSON.parse(await fs.readFile(cachePath, 'utf-8'));
+        console.log(chalk.green(`Loaded ${forecastType} forecast from cache`));
+        return cachedForecast;
+    } catch (error) {
+        console.log(chalk.yellow(`Get ${forecastType} forecast`));
+        const forecast = await getAskNewsForecast(title, fine_print, duration, limit);
+        await fs.writeFile(cachePath, JSON.stringify(forecast));
+        console.log(chalk.green(`Saved ${forecastType} forecast to cache`));
+        return forecast;
+    }
+}
 
-    return { shortTermForecast, longTermForecast };
+async function getForecasts(id, title, fine_print) {
+
+    // Define the cache directory
+    const cacheDir = path.join(process.cwd(), 'forecastCache');
+
+    // Ensure the cache directory exists
+    await ensureCacheDirExists(cacheDir);
+
+    // Get short-term forecast
+    const shortTermForecast = await getForecastWithCache(id, title, fine_print, 30, 50, 'shortTerm', cacheDir);
+
+    // Get long-term forecast
+    const longTermForecast = await getForecastWithCache(id, title, fine_print, 360, 100, 'longTerm', cacheDir);
+
+    return { shortTermForecast: shortTermForecast.parsed, longTermForecast: longTermForecast.parsed };
 }
 
 export { getAskNewsContext, parseAskNewsForecast, getForecasts };

@@ -30,3 +30,6 @@ yarn.lock
 # IDE specific files
 .vscode/settings.json
 .vscode/launch.json
+
+# Cache files
+forecastCache/

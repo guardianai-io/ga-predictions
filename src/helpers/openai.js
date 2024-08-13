@@ -61,8 +61,8 @@ const getGptPrediction = async (questionDetails) => {
 const getGptEvaluation = async (questionDetails) => {
     const today = dayjs().format("YYYY-MM-DD");
 
-    const { title, resolution_criteria, description, fine_print } = questionDetails;
-    const { shortTermForecast, longTermForecast } = await getForecasts(title, fine_print);
+    const { title, id, resolution_criteria, description, fine_print } = questionDetails;
+    const { shortTermForecast, longTermForecast } = await getForecasts(id, title, fine_print);
 
     let content = evaluator
         .replace("{title}", title)
@@ -76,7 +76,7 @@ const getGptEvaluation = async (questionDetails) => {
     console.log(chalk.yellow(`Evaluating short and long term forecasts`));
 
     const chatCompletion = await oaiClient.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-2024-08-06",
         messages: [
             {
                 role: "user",
@@ -102,7 +102,7 @@ const getAnalysis = async (report, questionDetails) => {
         .replace("{initial_report}", report);
 
     const chatCompletion = await oaiClient.chat.completions.create({
-        model: "GPT-4o-2024-08-06",
+        model: "gpt-4o-2024-08-06",
         messages: [
             {
                 role: "user",
